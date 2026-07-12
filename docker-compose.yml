@@ -1,0 +1,149 @@
+version: '3.9'
+
+# ═══════════════════════════════════════════════════════════════
+#  ARISE — Autonomous RFP Intelligence and Sales Engine
+#  Docker Compose — Full Production Stack
+#
+#  Services:
+#    postgres   — PostgreSQL 16 + pgvector (vector RAG backend)
+#    redis      — Redis 7 (Celery broker + result cache)
+#    backend    — FastAPI + Uvicorn (API + WebSocket)
+#    celery     — Celery worker pool (horizontal agent scaling)
+#    frontend   — Vite dev / Nginx prod
+#
+#  Quick start (dev):
+#    docker compose up -d
+#
+#  Scale workers:
+#    docker compose up -d --scale celery-worker=4
+# ═══════════════════════════════════════════════════════════════
+
+x-backend-common: &backend-common
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+  env_file:
+    - ./backend/.env
+  environment:
+    DATABASE_URL: postgresql+asyncpg://arise_user:${POSTGRES_PASSWORD:-arise_pass_2026}@postgres:5432/arise
+    CELERY_BROKER_URL: redis://redis:6379/0
+    CELERY_RESULT_BACKEND: redis://redis:6379/1
+    APP_NAME: "ARISE — Autonomous RFP Intelligence and Sales Engine"
+    APP_ENV: ${APP_ENV:-development}
+    CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000,http://localhost:80}
+  volumes:
+    - ./backend:/app
+    - ./knowledge_base:/knowledge_base
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+
+  # ── PostgreSQL 16 + pgvector ─────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: arise-postgres
+    environment:
+      POSTGRES_DB: arise
+      POSTGRES_USER: arise_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-arise_pass_2026}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arise_user -d arise"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Redis 7 (Celery + Cache) ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: arise-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend ──────────────────────────────────────────────────────
+  backend:
+    <<: *backend-common
+    container_name: arise-backend
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --ws websockets
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ── Celery Agent Workers ─────────────────────────────────────────────────
+  celery-worker:
+    <<: *backend-common
+    container_name: arise-celery
+    command: >
+      celery -A app.celery_app worker
+      --loglevel=info
+      --queues=arise_agents
+      --concurrency=4
+      --max-tasks-per-child=50
+      --without-heartbeat
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.celery_app inspect ping --timeout=5 || exit 1"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+
+  # ── Celery Beat (periodic tasks) ─────────────────────────────────────────
+  celery-beat:
+    <<: *backend-common
+    container_name: arise-beat
+    command: celery -A app.celery_app beat --loglevel=info --schedule=/tmp/celerybeat-schedule
+    restart: unless-stopped
+    profiles:
+      - full   # only starts with: docker compose --profile full up
+
+  # ── Vite Frontend ────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: arise-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE: http://localhost:8000
+    volumes:
+      - ./frontend/src:/app/src
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local
+
+networks:
+  default:
+    name: arise-network

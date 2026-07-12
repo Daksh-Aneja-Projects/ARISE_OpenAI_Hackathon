@@ -1,0 +1,48 @@
+{
+  "_comment": "ARISE Org Chart Config — place this file in knowledge_base/ and set ORG_CONFIG_FILE=../knowledge_base/org_config.json in .env",
+  "levels": {
+    "1": {"label": "Executive Leadership", "desc": "C-Suite & Board"},
+    "2": {"label": "Business Unit Heads", "desc": "Division & regional leadership"},
+    "3": {"label": "Service Line Heads", "desc": "Service line ownership"},
+    "4": {"label": "Practice Directors", "desc": "Domain practice leads"}
+  },
+  "tree": {
+    "role": "CEO & Managing Director",
+    "practice": "Executive Office",
+    "level": 1,
+    "highlight": true,
+    "children": [
+      {"role": "Chief Growth Officer", "practice": "Americas", "level": 2},
+      {"role": "Chief Growth Officer", "practice": "EMEA", "level": 2},
+      {"role": "Chief Growth Officer", "practice": "APAC", "level": 2},
+      {"role": "Chief Financial Officer", "practice": "Finance", "level": 2},
+      {"role": "Chief Technology Officer", "practice": "Technology", "level": 2},
+      {"role": "Chief Operating Officer", "practice": "Operations", "level": 2},
+      {
+        "role": "VP & Head of Digital Business",
+        "practice": "Digital Business Services",
+        "level": 2,
+        "highlight": true,
+        "children": [
+          {"role": "Service Line Head", "practice": "Cloud & Infrastructure", "level": 3},
+          {"role": "Service Line Head", "practice": "Data & Analytics", "level": 3},
+          {"role": "Service Line Head", "practice": "Application Services", "level": 3},
+          {"role": "Service Line Head", "practice": "AI & Automation", "level": 3},
+          {
+            "role": "Service Line Head",
+            "practice": "Enterprise Platform Services",
+            "level": 3,
+            "highlight": true,
+            "is_self": true,
+            "children": [
+              {"role": "Director", "practice": "Your Practice 1", "level": 4},
+              {"role": "Director", "practice": "Your Practice 2", "level": 4},
+              {"role": "Director", "practice": "Your Practice 3", "level": 4},
+              {"role": "Director", "practice": "Your Practice 4", "level": 4}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

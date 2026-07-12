@@ -1,0 +1,227 @@
+# ============================================================
+# ARISE — Agentic RFP Intelligence & Sales Execution
+# .gitignore — Security-hardened for enterprise pre-sales use
+# ============================================================
+# ⚠️  CRITICAL RULE: NO CLIENT DATA, NO RFPs, NO API KEYS ON GIT
+# ============================================================
+
+
+# ─── SECRETS & ENVIRONMENT ──────────────────────────────────
+.env
+.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.secret
+secrets/
+vault/
+
+# ─── DATABASES ──────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# ─── KNOWLEDGE BASE — CLIENT-SENSITIVE DATA ─────────────────
+# ALL of these contain client confidential content:
+# Client RFP documents — NEVER on git
+knowledge_base/rfps/
+# Client intelligence profiles
+knowledge_base/client_profiles/
+# Bid-specific analysis data
+knowledge_base/bid_data/
+# Generated proposals & SOWs
+knowledge_base/outputs/
+# Statement of Work documents
+knowledge_base/sows/
+# Win/loss analysis with client names
+knowledge_base/win_loss_data/
+
+# Safe KB collections (templates, company data, no client info):
+# knowledge_base/brand/                — safe
+# knowledge_base/clause_library/       — safe
+# knowledge_base/commercial_models/    — safe
+# knowledge_base/estimating_actuals/   — safe
+# knowledge_base/partner_profiles/     — safe (vendor data, not clients)
+# knowledge_base/rate_cards/           — safe
+# knowledge_base/scope_templates/      — safe
+# knowledge_base/solution_templates/   — safe
+# knowledge_base/ticket_taxonomies/    — safe
+
+# ─── AGENT OUTPUTS & MANIFESTS ──────────────────────────────
+# These contain client RFP analysis, pricing, and strategy data:
+backend/manifest.json
+backend/agent_outputs.json
+backend/all_agent_outputs.json
+backend/e2e_report.json
+temp.json
+
+# ─── CLIENT DOCUMENTS & PRESENTATIONS ───────────────────────
+*.pptx
+*.ppt
+*.xlsx
+*.xls
+*.docx
+*.doc
+*.pdf
+# Allow docs folder PDFs (architecture, public docs only)
+!docs/**/*.pdf
+
+# ─── EXTRACTED / TRANSCRIBED CLIENT TEXT ────────────────────
+prd_extracted.txt
+skill_extracted.txt
+"Friday, 17 Apr 2026 at 1_41 pm.txt"
+*.txt
+!README.txt               # Allow README text files
+!requirements.txt
+!**/requirements.txt
+
+# ─── BACKEND GENERATED FILES ────────────────────────────────
+backend/data/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/**/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Alembic compiled migrations (keep source, not compiled)
+backend/alembic/versions/__pycache__/
+
+# ─── FRONTEND BUILD & DEPENDENCIES ──────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.env
+frontend/.env.*
+node_modules/
+dist/
+build/
+
+# ─── PYTHON VIRTUAL ENVIRONMENTS ────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+backend/venv/
+backend/.venv/
+*.egg-info/
+.eggs/
+*.egg
+dist/
+*.whl
+
+# ─── DOCKER & DEPLOYMENT ────────────────────────────────────
+.docker/
+docker/volumes/
+pgdata/
+redis-data/
+# Keep docker-compose.yml (uses env var substitution, no secrets)
+
+# ─── IDE & EDITOR ───────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json   # Allow recommended extensions
+!.vscode/settings.json.example
+.idea/
+*.swp
+*.swo
+*.suo
+*.user
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ─── LOGS ───────────────────────────────────────────────────
+*.log
+logs/
+log/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── TEST OUTPUTS & DEBUG FILES ─────────────────────────────
+backend/test_*.py           # Debug/test scripts (not unit tests)
+backend/debug_*.py
+backend/dump_*.py
+backend/verify.py
+backend/inject_live_data.py
+backend/rerun_agents.py
+backend/run_agent.py
+backend/fix_org.py
+backend/update_org.py
+backend/update_org2.py
+# 39KB PPT generation script with hardcoded data
+backend/gen_ppt.py
+backend/create_user.py
+backend/test_patch*.py
+backend/test_pipeline*.py
+backend/test_agents_e2e.py
+backend/test_e2e_pipeline.py
+# Root-level debug/helper scripts
+architect.py
+check_docs.py
+clean_test.py
+fix_all_agents.py
+fix_styles.py
+rewrite.py
+run_redteam.py
+verify_frontend.py
+
+# ─── SENSITIVE ROOT FILES ────────────────────────────────────
+# Reference materials used during development — not for public repo:
+references/
+# Internal pre-sales methodology — confidential
+skills.md
+# Company trademark asset — do not publish
+HCLTech-new-logo.svg.png
+# Old branding assets
+frontend/public/hcltech-logo.png
+
+# ─── ML / AI MODEL ARTIFACTS ────────────────────────────────
+*.pt
+*.pth
+*.bin
+*.safetensors
+/models/
+!backend/app/models/
+embeddings_cache/
+.sentence_transformers/
+~/.cache/huggingface/
+
+# ─── CELERY ─────────────────────────────────────────────────
+celerybeat-schedule
+celerybeat.pid
+
+# ─── COVERAGE ───────────────────────────────────────────────
+.coverage
+htmlcov/
+.tox/
+
+# --- RAG CACHE ----------------------------------------------
+**/.rag_cache.json
+
+# ─── ADDITIONAL KNOWLEDGE BASE PROTECTION ───────────────────
+# Past bids contain client data, win/loss details
+knowledge_base/past_bids/
+# Case studies may contain client references
+knowledge_base/case_studies/
+# Catch-all: block any accidental file drops in KB root
+knowledge_base/*.json
+knowledge_base/*.csv
+knowledge_base/*.xlsx
+knowledge_base/*.docx
+knowledge_base/*.pdf

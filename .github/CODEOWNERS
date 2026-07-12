@@ -1,0 +1,28 @@
+# ─ ARISE — CODEOWNERS ─────────────────────────────────────────
+# Code owners are automatically requested for review on PRs.
+# Syntax: <pattern> <owner(s)>
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ── Global owners ─────────────────────────────────────────────
+* @arise-team
+
+# ── Core Backend ──────────────────────────────────────────────
+/backend/app/agents/       @arise-team
+/backend/app/api/          @arise-team
+/backend/app/services/llm.py @arise-team
+
+# ── Security-sensitive files ───────────────────────────────────
+/backend/app/services/auth.py      @arise-team
+/backend/app/api/auth.py           @arise-team
+/backend/app/middleware.py         @arise-team
+/.github/                          @arise-team
+/.env.example                      @arise-team
+/.gitignore                        @arise-team
+
+# ── Infrastructure ─────────────────────────────────────────────
+/docker-compose.yml                @arise-team
+/backend/Dockerfile                @arise-team
+/frontend/Dockerfile               @arise-team
+
+# ── Frontend ──────────────────────────────────────────────────
+/frontend/src/                     @arise-team
